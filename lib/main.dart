@@ -7,7 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'models/member.dart';
+import 'pages/admin_attendance_check_page.dart';
 import 'pages/login_page.dart';
+import 'pages/user_attendance_check_page.dart';
 import 'services/auth_service.dart';
 
 void main() async {
@@ -126,12 +128,23 @@ class _MyHomePageState extends State<MyHomePage> {
                                   String spaceName = result[0];
                                   List<Member> userList = result[1];
                                   spaceService.create(
-                                      spaceName,
-                                      Member(
-                                          uid: "",
-                                          nickname: authService.nickname,
-                                          role: UserRole.admin),
-                                      userList);
+                                    spaceName,
+                                    userList,
+                                  );
+                                } else {
+                                  Member currentMember =
+                                      await authService.currentMember;
+                                  if (!context.mounted) return;
+                                  await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => currentMember.role == UserRole.admin ? 
+                                            AdminAttendanceCheckPage(
+                                          spaceName:
+                                              spaceList[index].get('name'),
+                                        ) : UserAttendanceCheckPage(spaceName:
+                                              spaceList[index].get('name'),),
+                                      ));
                                 }
                               },
                               child: Card(

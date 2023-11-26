@@ -1,13 +1,20 @@
+import 'package:attendance_check_app/models/member.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService extends ChangeNotifier {
+  final authCollection = FirebaseFirestore.instance.collection('auth');
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
   User? get currentUser {
     return FirebaseAuth.instance.currentUser;
+  }
+
+  Future<Member> get currentMember async {
+    List<Member> memberList = await read();
+    return memberList.firstWhere((member) => member.uid == currentUser?.uid);
   }
 
   String get nickname {
@@ -18,7 +25,7 @@ class AuthService extends ChangeNotifier {
     GoogleSignIn googleSignIn = GoogleSignIn();
     GoogleSignInAccount? account = await googleSignIn.signIn();
     print(account);
-    //TODO: account에서 가져온 정보 중 sparcs 계정 필터링 해서 로그인 시키기
+
     if (account != null && _isSparcsMember(account.email)) {
       GoogleSignInAuthentication authentication = await account.authentication;
       OAuthCredential googleCredential = GoogleAuthProvider.credential(
@@ -32,10 +39,7 @@ class AuthService extends ChangeNotifier {
       final user = credential.user;
       print(user);
       if (user != null) {
-        //  User(
-        //     uid: user?.uid,
-        //     nickname: _getNicknameFromEmail(user?.email),
-        //     role: UserRole.admin)
+        create(Member(uid: user.uid, nickname: nickname, role: UserRole.user));
       }
 
       notifyListeners();
@@ -53,5 +57,18 @@ class AuthService extends ChangeNotifier {
 
   _isSparcsMember(String email) {
     return email.split("@")[1] == "sparcs.org";
+  }
+
+  void create(Member member) async {
+    await authCollection.doc(member.uid).set(member.toJson());
+    notifyListeners();
+  }
+
+  Future<List<Member>> read() async {
+    QuerySnapshot querySnapshot = await authCollection.get();
+    return querySnapshot.docs
+        .map((authDocument) =>
+            Member.fromJson(authDocument.data() as Map<String, dynamic>))
+        .toList();
   }
 }

@@ -1,6 +1,8 @@
 import 'package:attendance_check_app/models/member.dart';
 import 'package:flutter/material.dart';
 
+import 'add_user_to_space_page.dart';
+
 class CreateSpacePage extends StatefulWidget {
   const CreateSpacePage({super.key});
 
@@ -12,11 +14,9 @@ class _CreateSpacePageState extends State<CreateSpacePage> {
   @override
   Widget build(BuildContext context) {
     final spaceNameController = TextEditingController();
-    final userNameController = TextEditingController();
-    List<Member> userList = [];
-
-    final ValueNotifier<bool> _admin = ValueNotifier<bool>(false);
-    final ValueNotifier<int> _userCount = ValueNotifier<int>(userList.length);
+    
+    final ValueNotifier<List<Member>> userListNotifier =
+        ValueNotifier<List<Member>>([]);
 
     return Scaffold(
       body: SafeArea(
@@ -49,40 +49,15 @@ class _CreateSpacePageState extends State<CreateSpacePage> {
                   ],
                 ),
                 const SizedBox(height: 50),
-                TextField(
-                  controller: userNameController,
-                  decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8))),
-                ),
+      
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    ValueListenableBuilder(
-                      valueListenable: _admin,
-                      builder: (context, value, child) {
-                        return Transform.scale(
-                          alignment: AlignmentDirectional.centerEnd,
-                          scale: 0.7,
-                          child: Checkbox(
-                            materialTapTargetSize:
-                                MaterialTapTargetSize.shrinkWrap,
-                            value: _admin.value,
-                            onChanged: (value) {
-                              _admin.value = value!;
-                            },
-                          ),
-                        );
-                      },
-                    ),
-                    const Text(
-                      "관리자",
-                    ),
                     const Spacer(),
                     ValueListenableBuilder(
-                      valueListenable: _userCount,
+                      valueListenable: userListNotifier,
                       builder: (context, value, child) {
-                        return Text("현재 인원 ${_userCount.value}명");
+                        return Text("현재 인원 ${value.length}명");
                       },
                     ),
                   ],
@@ -91,16 +66,16 @@ class _CreateSpacePageState extends State<CreateSpacePage> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
-                      userList.add(Member(
-                          uid: "",
-                          nickname: userNameController.text,
-                          role: _admin.value ? UserRole.admin : UserRole.user));
-                      _userCount.value++;
-                      _admin.value = false;
-                      userNameController.clear();
+                    onPressed: () async {
+                      final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  const AddUserToSpacePage()));
+                      List<Member> userList = result[0];
+                      userListNotifier.value = userList;
                     },
-                    child: const Text("추가"),
+                    child: const Text("인원 추가"),
                   ),
                 ),
                 SizedBox(
@@ -108,7 +83,7 @@ class _CreateSpacePageState extends State<CreateSpacePage> {
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.pop(
-                          context, [spaceNameController.text, userList]);
+                          context, [spaceNameController.text, userListNotifier.value]);
                     },
                     child: const Text("완료"),
                   ),
