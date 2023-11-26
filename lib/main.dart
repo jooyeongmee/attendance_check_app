@@ -1,3 +1,4 @@
+import 'package:attendance_check_app/firebase_options.dart';
 import 'package:attendance_check_app/pages/create_space_page.dart';
 import 'package:attendance_check_app/services/space_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,7 +15,9 @@ import 'services/auth_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(
     MultiProvider(
       providers: [
@@ -31,6 +34,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("----");
     final currentUser = context.watch<AuthService>().currentUser;
     return MaterialApp(
       title: 'Attendance Check App',

@@ -19,29 +19,36 @@ class AuthService extends ChangeNotifier {
   Future<void> signInWithGoogle() async {
     GoogleSignIn googleSignIn = GoogleSignIn();
     GoogleSignInAccount? account = await googleSignIn.signIn();
+    print("==============");
+    print(account);
+    if (account != null) {
+      if (_isSparcsMember(account.email)) {
+        GoogleSignInAuthentication authentication =
+            await account.authentication;
+        OAuthCredential googleCredential = GoogleAuthProvider.credential(
+          idToken: authentication.idToken,
+          accessToken: authentication.accessToken,
+        );
 
-    if (account != null && _isSparcsMember(account.email)) {
-      GoogleSignInAuthentication authentication = await account.authentication;
-      OAuthCredential googleCredential = GoogleAuthProvider.credential(
-        idToken: authentication.idToken,
-        accessToken: authentication.accessToken,
-      );
+        UserCredential credential =
+            await _firebaseAuth.signInWithCredential(googleCredential);
 
-      UserCredential credential =
-          await _firebaseAuth.signInWithCredential(googleCredential);
-
-      final user = credential.user;
-      if (user != null) {
-        create(Member(uid: user.uid, nickname: nickname, role: UserRole.user));
+        final user = credential.user;
+        if (user != null) {
+          create(
+              Member(uid: user.uid, nickname: nickname, role: UserRole.user));
+        }
+        notifyListeners();
+      } else {
+        await GoogleSignIn().signOut();
+        throw '스팍스 계정으로 로그인 해주세요!';
       }
-      notifyListeners();
-    } else {
-      throw '스팍스 계정으로 로그인 해주세요!';
     }
   }
 
   void signOut() async {
     await FirebaseAuth.instance.signOut();
+    await GoogleSignIn().signOut();
     notifyListeners();
   }
 
