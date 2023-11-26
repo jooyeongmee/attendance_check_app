@@ -5,17 +5,23 @@ import 'package:provider/provider.dart';
 import '../models/member.dart';
 
 class AddUserToSpacePage extends StatefulWidget {
-  const AddUserToSpacePage({super.key});
+  const AddUserToSpacePage({super.key, required this.userListNotifier});
+
+  final ValueNotifier<List<Member>> userListNotifier;
 
   @override
   State<AddUserToSpacePage> createState() => _AddUserToSpacePageState();
 }
 
 class _AddUserToSpacePageState extends State<AddUserToSpacePage> {
-  final ValueNotifier<List<Member>> userListNotifier =
-      ValueNotifier<List<Member>>([]);
-
   bool selectAll = false;
+  late final ValueNotifier<List<Member>> userListNotifier;
+
+  @override
+  void initState() {
+    userListNotifier = widget.userListNotifier;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +61,9 @@ class _AddUserToSpacePageState extends State<AddUserToSpacePage> {
                                   selectAll = !selectAll;
                                   if (selectAll) {
                                     for (Member member in authList) {
-                                      userList.add(member);
+                                      if (!userList.contains(member)) {
+                                        userList.add(member);
+                                      }
                                     }
                                   } else {
                                     userList.clear();
@@ -71,11 +79,17 @@ class _AddUserToSpacePageState extends State<AddUserToSpacePage> {
                           shrinkWrap: true,
                           itemCount: authList.length,
                           itemBuilder: (context, index) {
-                            Member member = authList[index];
+                            bool isAdded = userList.contains(authList[index]);
+                            Member member = isAdded
+                                ? userList.firstWhere(
+                                    (user) => user == authList[index])
+                                : authList[index];
+
                             final ValueNotifier<bool> checkedNotifier =
-                                ValueNotifier<bool>(selectAll);
+                                ValueNotifier<bool>(selectAll || isAdded);
                             final ValueNotifier<bool> isAdminNotifier =
-                                ValueNotifier<bool>(false);
+                                ValueNotifier<bool>(
+                                    member.role == UserRole.admin);
 
                             return ListTile(
                               leading: ValueListenableBuilder(
@@ -129,6 +143,7 @@ class _AddUserToSpacePageState extends State<AddUserToSpacePage> {
                           width: double.infinity,
                           child: ElevatedButton(
                             onPressed: () {
+                              print(userList);
                               Navigator.pop(context, [userList]);
                             },
                             child: const Text("완료"),

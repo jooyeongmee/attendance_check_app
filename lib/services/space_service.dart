@@ -15,12 +15,12 @@ class SpaceService extends ChangeNotifier {
     return memberList.firstWhere((member) => member.uid == user?.uid);
   }
 
-  Stream<QuerySnapshot> read() {
-    return spaceCollection
-        .withConverter<Space>(
-            fromFirestore: (snapshot, _) => Space.fromJson(snapshot.data()!),
-            toFirestore: (space, _) => space.toJson())
-        .snapshots();
+  Future<List<Space>> read() async {
+    QuerySnapshot querySnapshot = await spaceCollection.get();
+    return querySnapshot.docs
+        .map((spaceDocument) =>
+            Space.fromJson(spaceDocument.data() as Map<String, dynamic>))
+        .toList();
   }
 
   Future<List<Member>> fetchUserList(String spaceName) async {
@@ -41,7 +41,6 @@ class SpaceService extends ChangeNotifier {
     for (Member user in userList) {
       await usersCollection.add(user.toJson());
     }
-
     notifyListeners();
   }
 
@@ -71,7 +70,20 @@ class SpaceService extends ChangeNotifier {
     }
   }
 
-  void update(String spaceName) async {}
+  void update(String spaceName, List<Member> userList) async {
+    CollectionReference usersCollection =
+        spaceCollection.doc(spaceName).collection('users');
+
+    QuerySnapshot existingUsers = await usersCollection.get();
+    for (QueryDocumentSnapshot doc in existingUsers.docs) {
+      await doc.reference.delete();
+    }
+
+    for (Member user in userList) {
+      await usersCollection.add(user.toJson());
+    }
+    notifyListeners();
+  }
 
   void delete(String spaceName) async {
     await spaceCollection.doc(spaceName).delete();

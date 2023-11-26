@@ -9,13 +9,16 @@ class Space {
   factory Space.fromJson(Map<String, dynamic> json) {
     return Space(
       name: json["name"],
-      users: json["users"],
+      users: (json["users"] as List<dynamic>?)
+              ?.map((userJson) => Member.fromJson(userJson))
+              .toList() ??
+          [],
     );
   }
   Map<String, dynamic> toJson() {
     return {
       "name": name,
-      "users": users,
+      "users": users.map((user) => user.toJson()).toList(),
     };
   }
 }

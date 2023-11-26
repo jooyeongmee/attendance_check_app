@@ -16,11 +16,12 @@ class AdminAttendanceCheckPage extends StatefulWidget {
   State<AdminAttendanceCheckPage> createState() => _AttendanceCheckPageState();
 }
 
+
 class _AttendanceCheckPageState extends State<AdminAttendanceCheckPage> {
   Barcode? result;
   QRViewController? controller;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
-
+  
   @override
   Widget build(BuildContext context) {
     final spaceService = context.read<SpaceService>();
