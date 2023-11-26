@@ -132,18 +132,25 @@ class _MyHomePageState extends State<MyHomePage> {
                                     userList,
                                   );
                                 } else {
-                                  Member currentMember =
-                                      await authService.currentMember;
+                                  String spaceName =
+                                      spaceList[index].get('name');
+                                  Member currentMember = await spaceService
+                                      .getCurrentMember(spaceName, widget.user);
+                                  print(currentMember);
                                   if (!context.mounted) return;
                                   await Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => currentMember.role == UserRole.admin ? 
-                                            AdminAttendanceCheckPage(
-                                          spaceName:
-                                              spaceList[index].get('name'),
-                                        ) : UserAttendanceCheckPage(spaceName:
-                                              spaceList[index].get('name'),),
+                                        builder: (context) =>
+                                            currentMember.role == UserRole.admin
+                                                ? AdminAttendanceCheckPage(
+                                                    spaceName: spaceName,
+                                                  )
+                                                : UserAttendanceCheckPage(
+                                                    currentMember:
+                                                        currentMember,
+                                                    spaceName: spaceName,
+                                                  ),
                                       ));
                                 }
                               },

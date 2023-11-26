@@ -1,38 +1,19 @@
 import 'package:attendance_check_app/models/space.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/material.dart';
+import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 import '../models/member.dart';
 
 class SpaceService extends ChangeNotifier {
-  List<Space> spaceList = [
-    Space(
-      name: "방 1",
-      users: [
-        Member(uid: "1", nickname: "ava", role: UserRole.admin),
-        Member(uid: "2", nickname: "user", role: UserRole.user)
-      ],
-    )
-  ];
-
-  // read() {
-  //   return spaceList;
-  // }
-
-  // void create(String name, Member admin, List<Member> userList) {
-  //   spaceList.add(Space(id: "2", name: name, users: [admin, ...userList]));
-  // }
-
-  // void attendanceCheck(String spaceId, bool isChecked, String userId) {
-  //   spaceList
-  //       .firstWhere((space) => space.id == spaceId)
-  //       .users
-  //       .firstWhere((user) => user.uid == userId)
-  //       .isChecked = true;
-  // }
-
   final spaceCollection = FirebaseFirestore.instance.collection('space');
+
+  Future<Member> getCurrentMember(String spaceName, User? user) async {
+    List<Member> memberList = await fetchUserList(spaceName);
+    return memberList.firstWhere((member) => member.uid == user?.uid);
+  }
 
   Stream<QuerySnapshot> read() {
     return spaceCollection
@@ -45,8 +26,6 @@ class SpaceService extends ChangeNotifier {
   Future<List<Member>> fetchUserList(String spaceName) async {
     QuerySnapshot querySnapshot =
         await spaceCollection.doc(spaceName).collection('users').get();
-    print("111");
-    print(querySnapshot.docs);
     return querySnapshot.docs
         .map((userDocument) =>
             Member.fromJson(userDocument.data() as Map<String, dynamic>))
@@ -66,15 +45,36 @@ class SpaceService extends ChangeNotifier {
     notifyListeners();
   }
 
-  void update(String spaceId, bool isChecked, String userId) async {
-    // DocumentReference userDocument =
-    //     spaceCollection.doc(spaceId).get('users').doc(userId);
-    // await userDocument.update({'isChecked': isChecked});
-    // notifyListeners();
+  Future<void> updateAttendance(String spaceName, Barcode barcode) async {
+    try {
+      QuerySnapshot querySnapshot =
+          await spaceCollection.doc(spaceName).collection('users').get();
+      QueryDocumentSnapshot<Object?> userDocument = querySnapshot.docs
+          .firstWhere((element) =>
+              Member.fromJson(element.data() as Map<String, dynamic>).uid ==
+              barcode.code);
+      if (userDocument.exists) {
+        Member member =
+            Member.fromJson(userDocument.data() as Map<String, dynamic>);
+
+        member.isChecked = true;
+
+        await userDocument.reference.update(member.toJson());
+      }
+
+      List<Member> memberList = await fetchUserList(spaceName);
+      memberList.firstWhere((member) => member.uid == barcode.code).isChecked =
+          true;
+      notifyListeners();
+    } catch (e) {
+      throw 'qr 코드가 잘못되었습니다.';
+    }
   }
 
-  void delete(String docId) async {
-    await spaceCollection.doc(docId).delete();
+  void update(String spaceName) async {}
+
+  void delete(String spaceName) async {
+    await spaceCollection.doc(spaceName).delete();
     notifyListeners();
   }
 }

@@ -12,10 +12,7 @@ class AuthService extends ChangeNotifier {
     return FirebaseAuth.instance.currentUser;
   }
 
-  Future<Member> get currentMember async {
-    List<Member> memberList = await read();
-    return memberList.firstWhere((member) => member.uid == currentUser?.uid);
-  }
+
 
   String get nickname {
     return _getNicknameFromEmail(currentUser?.email);
