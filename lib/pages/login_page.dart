@@ -22,7 +22,13 @@ class _LoginPageState extends State<LoginPage> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () async {
-                await authService.signInWithGoogle();
+                try {
+                  await authService.signInWithGoogle();
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(e.toString())),
+                  );
+                }
               },
               child: const Text("구글 계정으로 로그인"),
             ),

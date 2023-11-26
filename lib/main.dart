@@ -56,8 +56,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    final authService = context.watch<AuthService>();
-    final spaceService = context.watch<SpaceService>();
+    final authService = context.read<AuthService>();
+    final spaceService = context.read<SpaceService>();
 
     return Scaffold(
       body: SafeArea(
@@ -94,8 +94,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 const SizedBox(height: 18),
                 Flexible(
-                  child: FutureBuilder<List<Space>>(
-                    future: spaceService.read(),
+                  child: StreamBuilder<List<Space>>(
+                    stream: spaceService.read(),
                     builder: (context, snapshot) {
                       if (snapshot.hasError) {
                         return const Text('에러 있음');

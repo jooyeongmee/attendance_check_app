@@ -84,12 +84,23 @@ class _AddUserToSpacePageState extends State<AddUserToSpacePage> {
                                 ? userList.firstWhere(
                                     (user) => user == authList[index])
                                 : authList[index];
+                            bool isLogInnedUser =
+                                member.uid == authService.currentUser?.uid;
 
                             final ValueNotifier<bool> checkedNotifier =
-                                ValueNotifier<bool>(selectAll || isAdded);
+                                ValueNotifier<bool>(isLogInnedUser
+                                    ? true
+                                    : selectAll || isAdded);
                             final ValueNotifier<bool> isAdminNotifier =
-                                ValueNotifier<bool>(
-                                    member.role == UserRole.admin);
+                                ValueNotifier<bool>(isLogInnedUser
+                                    ? true
+                                    : member.role == UserRole.admin);
+
+                            if (isLogInnedUser && !isAdded) {
+                              member.role = UserRole.admin;
+                              member.isChecked = true;
+                              userList.add(member);
+                            }
 
                             return ListTile(
                               leading: ValueListenableBuilder(
@@ -128,7 +139,12 @@ class _AddUserToSpacePageState extends State<AddUserToSpacePage> {
                                                 (user) => user == member)
                                             .role = UserRole.user;
                                       }
-
+                                      if (member.role == UserRole.admin) {
+                                        userList
+                                            .firstWhere(
+                                                (user) => user == member)
+                                            .isChecked = true;
+                                      }
                                       isAdminNotifier.value =
                                           !isAdminNotifier.value;
                                     },
@@ -143,7 +159,6 @@ class _AddUserToSpacePageState extends State<AddUserToSpacePage> {
                           width: double.infinity,
                           child: ElevatedButton(
                             onPressed: () {
-                              print(userList);
                               Navigator.pop(context, [userList]);
                             },
                             child: const Text("완료"),

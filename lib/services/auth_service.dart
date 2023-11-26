@@ -12,8 +12,6 @@ class AuthService extends ChangeNotifier {
     return FirebaseAuth.instance.currentUser;
   }
 
-
-
   String get nickname {
     return _getNicknameFromEmail(currentUser?.email);
   }
@@ -21,7 +19,6 @@ class AuthService extends ChangeNotifier {
   Future<void> signInWithGoogle() async {
     GoogleSignIn googleSignIn = GoogleSignIn();
     GoogleSignInAccount? account = await googleSignIn.signIn();
-    print(account);
 
     if (account != null && _isSparcsMember(account.email)) {
       GoogleSignInAuthentication authentication = await account.authentication;
@@ -34,12 +31,12 @@ class AuthService extends ChangeNotifier {
           await _firebaseAuth.signInWithCredential(googleCredential);
 
       final user = credential.user;
-      print(user);
       if (user != null) {
         create(Member(uid: user.uid, nickname: nickname, role: UserRole.user));
       }
-
       notifyListeners();
+    } else {
+      throw '스팍스 계정으로 로그인 해주세요!';
     }
   }
 

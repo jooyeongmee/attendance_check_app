@@ -15,12 +15,12 @@ class SpaceService extends ChangeNotifier {
     return memberList.firstWhere((member) => member.uid == user?.uid);
   }
 
-  Future<List<Space>> read() async {
-    QuerySnapshot querySnapshot = await spaceCollection.get();
-    return querySnapshot.docs
-        .map((spaceDocument) =>
-            Space.fromJson(spaceDocument.data() as Map<String, dynamic>))
-        .toList();
+  Stream<List<Space>> read() {
+    return spaceCollection.snapshots().map((querySnapshot) {
+      return querySnapshot.docs
+          .map((spaceDocument) => Space.fromJson(spaceDocument.data()))
+          .toList();
+    });
   }
 
   Future<List<Member>> fetchUserList(String spaceName) async {
@@ -86,6 +86,9 @@ class SpaceService extends ChangeNotifier {
   }
 
   void delete(String spaceName) async {
+    CollectionReference usersCollection =
+        spaceCollection.doc(spaceName).collection('users');
+    await usersCollection.doc().delete();
     await spaceCollection.doc(spaceName).delete();
     notifyListeners();
   }
