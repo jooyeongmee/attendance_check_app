@@ -88,8 +88,17 @@ class SpaceService extends ChangeNotifier {
   void delete(String spaceName) async {
     CollectionReference usersCollection =
         spaceCollection.doc(spaceName).collection('users');
-    await usersCollection.doc().delete();
+    QuerySnapshot existingUsers = await usersCollection.get();
+    for (QueryDocumentSnapshot doc in existingUsers.docs) {
+      await doc.reference.delete();
+    }
     await spaceCollection.doc(spaceName).delete();
     notifyListeners();
+  }
+
+  Future<bool> isSpaceNameDuplicate(String spaceName) async {
+    DocumentSnapshot documentSnapshot =
+        await spaceCollection.doc(spaceName).get();
+    return documentSnapshot.exists;
   }
 }

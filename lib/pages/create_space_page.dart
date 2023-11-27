@@ -1,5 +1,7 @@
 import 'package:attendance_check_app/models/member.dart';
+import 'package:attendance_check_app/services/space_service.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'add_user_to_space_page.dart';
 
@@ -26,6 +28,7 @@ class _CreateSpacePageState extends State<CreateSpacePage> {
 
   @override
   Widget build(BuildContext context) {
+    final spaceService = context.read<SpaceService>();
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -95,15 +98,24 @@ class _CreateSpacePageState extends State<CreateSpacePage> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
-                      if (widget.spaceName == null &&
-                          spaceNameController.text.trim().isEmpty) {
+                    onPressed: () async {
+                      final spaceName = spaceNameController.text.trim();
+                      final isSpaceNameDuplicate =
+                          await spaceService.isSpaceNameDuplicate(spaceName);
+                      if (!context.mounted) return;
+                      if (widget.spaceName == null && spaceName.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('방 이름을 적어주세요.')),
                         );
+                      } else if (isSpaceNameDuplicate) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('이미 생성된 방입니다.')),
+                        );
                       } else {
-                        Navigator.pop(context,
-                            [spaceNameController.text, userListNotifier.value]);
+                        Navigator.pop(context, [
+                          spaceNameController.text.trim(),
+                          userListNotifier.value
+                        ]);
                       }
                     },
                     child: const Text("완료"),

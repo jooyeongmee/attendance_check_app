@@ -19,8 +19,7 @@ class AuthService extends ChangeNotifier {
   Future<void> signInWithGoogle() async {
     GoogleSignIn googleSignIn = GoogleSignIn();
     GoogleSignInAccount? account = await googleSignIn.signIn();
-    print("==============");
-    print(account);
+  
     if (account != null) {
       if (_isSparcsMember(account.email)) {
         GoogleSignInAuthentication authentication =

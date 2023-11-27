@@ -129,22 +129,18 @@ class _AddUserToSpacePageState extends State<AddUserToSpacePage> {
                                         : const Text("유저"),
                                     onTap: () {
                                       if (!value) {
-                                        userList
-                                            .firstWhere(
-                                                (user) => user == member)
-                                            .role = UserRole.admin;
+                                        final Member user = userList.firstWhere(
+                                            (user) => user == member);
+
+                                        user.role = UserRole.admin;
+                                        user.isChecked = true;
                                       } else {
-                                        userList
-                                            .firstWhere(
-                                                (user) => user == member)
-                                            .role = UserRole.user;
+                                        final Member user = userList.firstWhere(
+                                            (user) => user == member);
+                                        user.role = UserRole.user;
+                                        user.isChecked = false;
                                       }
-                                      if (member.role == UserRole.admin) {
-                                        userList
-                                            .firstWhere(
-                                                (user) => user == member)
-                                            .isChecked = true;
-                                      }
+
                                       isAdminNotifier.value =
                                           !isAdminNotifier.value;
                                     },

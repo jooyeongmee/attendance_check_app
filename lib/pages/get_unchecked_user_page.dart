@@ -21,7 +21,7 @@ class GetUncheckedUserPage extends StatelessWidget {
             itemCount: uncheckedUserList.length,
             itemBuilder: (context, index) {
               return ListTile(
-                leading: Icon(Icons.chevron_right),
+                leading: const Icon(Icons.chevron_right),
                 title: Text(uncheckedUserList[index].nickname),
               );
             },
