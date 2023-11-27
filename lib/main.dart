@@ -34,7 +34,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("----");
     final currentUser = context.watch<AuthService>().currentUser;
     return MaterialApp(
       title: 'Attendance Check App',

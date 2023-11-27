@@ -99,23 +99,14 @@ class _CreateSpacePageState extends State<CreateSpacePage> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () async {
-                      final spaceName = spaceNameController.text.trim();
-                      final isSpaceNameDuplicate =
-                          await spaceService.isSpaceNameDuplicate(spaceName);
-                      if (!context.mounted) return;
-                      if (widget.spaceName == null && spaceName.isEmpty) {
+                      if (widget.spaceName == null &&
+                          spaceNameController.text.trim().isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('방 이름을 적어주세요.')),
                         );
-                      } else if (isSpaceNameDuplicate) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('이미 생성된 방입니다.')),
-                        );
                       } else {
-                        Navigator.pop(context, [
-                          spaceNameController.text.trim(),
-                          userListNotifier.value
-                        ]);
+                        Navigator.pop(context,
+                            [spaceNameController.text, userListNotifier.value]);
                       }
                     },
                     child: const Text("완료"),
