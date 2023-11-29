@@ -1,7 +1,5 @@
 import 'package:attendance_check_app/models/member.dart';
-import 'package:attendance_check_app/services/space_service.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import 'add_user_to_space_page.dart';
 
@@ -28,7 +26,6 @@ class _CreateSpacePageState extends State<CreateSpacePage> {
 
   @override
   Widget build(BuildContext context) {
-    final spaceService = context.read<SpaceService>();
     return Scaffold(
       body: SafeArea(
         child: Padding(

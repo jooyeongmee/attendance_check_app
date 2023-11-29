@@ -74,83 +74,87 @@ class _AddUserToSpacePageState extends State<AddUserToSpacePage> {
                             const Text("전체 선택"),
                           ],
                         ),
-                        ListView.builder(
-                          padding: const EdgeInsets.all(0),
-                          shrinkWrap: true,
-                          itemCount: authList.length,
-                          itemBuilder: (context, index) {
-                            bool isAdded = userList.contains(authList[index]);
-                            Member member = isAdded
-                                ? userList.firstWhere(
-                                    (user) => user == authList[index])
-                                : authList[index];
-                            bool isLogInnedUser =
-                                member.uid == authService.currentUser?.uid;
+                        Expanded(
+                          child: ListView.builder(
+                            padding: const EdgeInsets.all(0),
+                            shrinkWrap: true,
+                            itemCount: authList.length,
+                            itemBuilder: (context, index) {
+                              bool isAdded = userList.contains(authList[index]);
+                              Member member = isAdded
+                                  ? userList.firstWhere(
+                                      (user) => user == authList[index])
+                                  : authList[index];
+                              bool isLogInnedUser =
+                                  member.uid == authService.currentUser?.uid;
 
-                            final ValueNotifier<bool> checkedNotifier =
-                                ValueNotifier<bool>(isLogInnedUser
-                                    ? true
-                                    : selectAll || isAdded);
-                            final ValueNotifier<bool> isAdminNotifier =
-                                ValueNotifier<bool>(isLogInnedUser
-                                    ? true
-                                    : member.role == UserRole.admin);
+                              final ValueNotifier<bool> checkedNotifier =
+                                  ValueNotifier<bool>(isLogInnedUser
+                                      ? true
+                                      : selectAll || isAdded);
+                              final ValueNotifier<bool> isAdminNotifier =
+                                  ValueNotifier<bool>(isLogInnedUser
+                                      ? true
+                                      : member.role == UserRole.admin);
 
-                            if (isLogInnedUser && !isAdded) {
-                              member.role = UserRole.admin;
-                              member.isChecked = true;
-                              userList.add(member);
-                            }
+                              if (isLogInnedUser && !isAdded) {
+                                member.role = UserRole.admin;
+                                member.isChecked = true;
+                                userList.add(member);
+                              }
 
-                            return ListTile(
-                              leading: ValueListenableBuilder(
-                                valueListenable: checkedNotifier,
-                                builder: (context, value, child) {
-                                  return Checkbox(
-                                    value: value,
-                                    onChanged: (checked) {
-                                      if (userList.contains(member)) {
-                                        userList.remove(member);
-                                      } else {
-                                        userList.add(member);
-                                      }
-                                      checkedNotifier.value = checked!;
-                                    },
-                                  );
-                                },
-                              ),
-                              title: Text(member.nickname),
-                              trailing: ValueListenableBuilder(
-                                valueListenable: isAdminNotifier,
-                                builder: (context, value, child) {
-                                  return InkWell(
-                                    child: value
-                                        ? const Text("관리자")
-                                        : const Text("유저"),
-                                    onTap: () {
-                                      if (!value) {
-                                        final Member user = userList.firstWhere(
-                                            (user) => user == member);
+                              return ListTile(
+                                leading: ValueListenableBuilder(
+                                  valueListenable: checkedNotifier,
+                                  builder: (context, value, child) {
+                                    return Checkbox(
+                                      value: value,
+                                      onChanged: (checked) {
+                                        if (userList.contains(member)) {
+                                          userList.remove(member);
+                                        } else {
+                                          userList.add(member);
+                                        }
+                                        checkedNotifier.value = checked!;
+                                      },
+                                    );
+                                  },
+                                ),
+                                title: Text(member.nickname),
+                                trailing: ValueListenableBuilder(
+                                  valueListenable: isAdminNotifier,
+                                  builder: (context, value, child) {
+                                    return InkWell(
+                                      child: value
+                                          ? const Text("관리자")
+                                          : const Text("유저"),
+                                      onTap: () {
+                                        if (!value) {
+                                          final Member user =
+                                              userList.firstWhere(
+                                                  (user) => user == member);
 
-                                        user.role = UserRole.admin;
-                                        user.isChecked = true;
-                                      } else {
-                                        final Member user = userList.firstWhere(
-                                            (user) => user == member);
-                                        user.role = UserRole.user;
-                                        user.isChecked = false;
-                                      }
+                                          user.role = UserRole.admin;
+                                          user.isChecked = true;
+                                        } else {
+                                          final Member user =
+                                              userList.firstWhere(
+                                                  (user) => user == member);
+                                          user.role = UserRole.user;
+                                          user.isChecked = false;
+                                        }
 
-                                      isAdminNotifier.value =
-                                          !isAdminNotifier.value;
-                                    },
-                                  );
-                                },
-                              ),
-                            );
-                          },
+                                        isAdminNotifier.value =
+                                            !isAdminNotifier.value;
+                                      },
+                                    );
+                                  },
+                                ),
+                              );
+                            },
+                          ),
                         ),
-                        const Spacer(),
+                        const SizedBox(height: 20),
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
@@ -160,7 +164,8 @@ class _AddUserToSpacePageState extends State<AddUserToSpacePage> {
                             child: const Text("완료"),
                           ),
                         ),
-                        const Spacer(),
+                        SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.1),
                       ],
                     );
                   }),

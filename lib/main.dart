@@ -166,57 +166,71 @@ class _MyHomePageState extends State<MyHomePage> {
                                         const SizedBox(width: 6),
                                       ],
                                     ),
-                                  const SizedBox(height: 45),
-                                  GestureDetector(
-                                    onTap: () async {
-                                      if (index >= spaceList.length) {
-                                        final result = await Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  const CreateSpacePage(),
-                                            ));
-                                        String spaceName = result[0];
-                                        List<Member> userList = result[1];
-                                        spaceService.create(
-                                          spaceName,
-                                          userList,
-                                        );
-                                      } else {
-                                        String spaceName =
-                                            spaceList[index].name;
-                                        Member currentMember =
-                                            await spaceService.getCurrentMember(
-                                                spaceName, widget.user);
-                                        if (!context.mounted) return;
-                                        await Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  currentMember.role ==
-                                                          UserRole.admin
-                                                      ? AdminAttendanceCheckPage(
-                                                          spaceName: spaceName,
-                                                        )
-                                                      : UserAttendanceCheckPage(
-                                                          currentMember:
-                                                              currentMember,
-                                                          spaceName: spaceName,
-                                                        ),
-                                            ));
-                                      }
-                                    },
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8),
-                                      child: Center(
-                                        child: index < spaceList.length
-                                            ? Text(spaceList[index].name)
-                                            : const Icon(
-                                                Icons.add,
-                                                size: 80,
-                                                color: Colors.black54,
-                                              ),
+                                  Expanded(
+                                    child: GestureDetector(
+                                      onTap: () async {
+                                        if (index >= spaceList.length) {
+                                          final result = await Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const CreateSpacePage(),
+                                              ));
+                                          String spaceName = result[0];
+                                          List<Member> userList = result[1];
+                                          spaceService.create(
+                                            spaceName,
+                                            userList,
+                                          );
+                                        } else {
+                                          String spaceName =
+                                              spaceList[index].name;
+                                          Member currentMember =
+                                              await spaceService
+                                                  .getCurrentMember(
+                                                      spaceName, widget.user);
+                                          if (!context.mounted) return;
+                                          await Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => currentMember
+                                                            .role ==
+                                                        UserRole.admin
+                                                    ? AdminAttendanceCheckPage(
+                                                        spaceName: spaceName,
+                                                      )
+                                                    : UserAttendanceCheckPage(
+                                                        currentMember:
+                                                            currentMember,
+                                                        spaceName: spaceName,
+                                                      ),
+                                              ));
+                                        }
+                                      },
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 8),
+                                            child: Center(
+                                              child: index < spaceList.length
+                                                  ? Text(
+                                                      spaceList[index].name,
+                                                      style: const TextStyle(
+                                                          overflow: TextOverflow
+                                                              .ellipsis),
+                                                      maxLines: 2,
+                                                    )
+                                                  : const Icon(
+                                                      Icons.add,
+                                                      size: 80,
+                                                      color: Colors.black54,
+                                                    ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ),
